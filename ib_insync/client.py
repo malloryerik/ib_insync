@@ -213,6 +213,7 @@ class Client:
             msg = b'API\0' + self._prefix(b'v%d..%d%s' % (
                 self.MinClientVersion, self.MaxClientVersion,
                 b' ' + self.connectOptions if self.connectOptions else b''))
+            print(f'Sending binary data to TWS: {msg}')
             self.conn.sendMsg(msg)
             await asyncio.wait_for(self.apiStart, timeout)
             self._logger.info('API connection ready')
@@ -266,9 +267,11 @@ class Client:
                 s = str(field)
             msg.write(s)
             msg.write('\0')
+            
         self.sendMsg(msg.getvalue())
 
     def sendMsg(self, msg: str):
+        print(f'Sending binary data to TWS: {msg}')
         loop = getLoop()
         t = loop.time()
         times = self._timeQ
@@ -302,6 +305,7 @@ class Client:
         return struct.pack('>I', len(msg)) + msg
 
     def _onSocketHasData(self, data):
+        print(f'Received binary data from TWS: {data}')
         debug = self._logger.isEnabledFor(logging.DEBUG)
         if self._tcpDataArrived:
             self._tcpDataArrived()
